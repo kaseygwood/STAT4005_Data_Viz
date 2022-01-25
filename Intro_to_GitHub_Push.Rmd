@@ -10,5 +10,6 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(tidyverse)
 ggplot(data = mtcars, aes(x = mpg)) +
-  geom_histogram(colour = "black", fill = "white", bins = 15)
+  geom_histogram(colour = "black", fill = "white", bins = 15) +
+  labs(x = "Miles per Gallon")
 ```
