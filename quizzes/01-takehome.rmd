@@ -1,0 +1,54 @@
+---
+title: "Take-Home Quiz 1"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+3.3 Data Visualization Concepts: Part 2
+\
+\
+What is the difference between a colour’s hue and a colour’s intensity?
+\
+A colour's hue is the actual color that the object is, which is actually defined in terms of the wavelength of the light reflecting from the object's surface because the color reflected the most is the color actually shown. While a colour's intensity is the darkness of the color, so you can see different color intensities on graphs that show scale colors.
+\
+\
+Think of an example where you would want to use a sequential colour scale that’s different from the one given in the text. Then, think of examples where you would use a diverging colour scale and an unordered colour scale.
+\
+An example where you would want to use a sequential color scale is if we are trying to show grades in a classroom (so as the grades go up the color scale gets darker). 
+An example of a diverging colour scale is when you are looking at your average running time (in mph) and want to know how much you vary from that throughout your run. So, it will be darker when running the slowest and fastest because it is the farthest away from your average running time. 
+An example of a time you would use an unordered colour scale is when you have multiple types of working out you do (running, swimming, etc.) and you want to keep trach of what you do everyday. You can keep a scale that has a different colour for every activity.
+\
+\
+Some gestalt inferences take priority over others. Using Figure 1.21, give an example of a gestalt inference that takes priority over another one.
+\
+One example of a gestalt inference that takes priority over another one is connection over proximity when looking at the top left corner. We can see that all of the dots are lined up in columns and rows, but they show a closer proximity in their column because the connection within their column takes priority over the proximity.
+\
+\
+“Bar charts are better than Pie charts for visualizing a single categorical variable.” Explain how results shown in Figure 1.23 support this claim.
+\
+Results shown in Figure 1.23 show the results of Cleveland and McGill's tests on which charts are the easiest to read and understand for a single categorical variable. This graph shows that when they used the bar charts there was less error than when they used all the other charts, so this supports that bar charts are better than pie charts.
+\
+\
+Suppose you have a scatterplot of height on the y-axis vs. weight on the x-axis for people born in Canada, Mexico, and the United States. You now want to explore whether the relationship is different for people born in the United States, people born in Canada, and people born in Mexico. Should you use different shapes to distinguish the three countries or should you use different colours? Explain using either Figure 1.24 or 1.25.
+\
+You should use different colours to distinguish between the three countries.Through different research processes Munzer found (as shown in figure 1.25) that color hue is better to distinguish quantitative measures which is what we have here. On figure 1.25 we can see that there are different ways to map categorical data and it is in order of how effective it is, so we can see that color hue is more effective than shape.
+\
+\
+When might you use the left-side of Figure 1.27 to show the law school data? When might you use the right-side of Figure 1.27 to show the law school data?
+\
+You might use the left-side of the figure when trying to show that there is a large decrease so it needs to be fixed, so for example when talking to staff at different colleges (trying to get them to further encourage students to pursue law school). The second one may be used to show to a board/trustees of the college to try and show that there hasn't been as much of a decrease recently as the data actually shows.
+\
+\
+Summary: What are two takeaways from Sections 1.3-1.7?
+\
+One key takeaway from this section is that depending on the graph, it can vary what is best to use in terms of changing shape or color to represent the variables. So, you must pay attention to what data you are trying to represent and try to use the more effective versions of the graphs.
+\
+Another key takeaway from this section is that different visual cues override other visual cues. So, often things are considered similar if they are closer together, but other cues could be represented in the graph (such as shape), so you must pay close attention to these as well.
+\
+\
+What is one question that you have about the reading?
+\
+How can you really tell what the best graph is to use visually without trying every graph and testing it?

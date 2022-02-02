@@ -1,0 +1,77 @@
+---
+title: "02-TakeHome"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own, and I have followed all rules for collaboration.”
+\
+Kasey Wood
+
+```{r}
+library(tidyverse)
+library(readxl)
+df <- read_excel("~/Desktop/data visualization/data/slu_graduates_17_21.xlsx")
+
+## fixes error in the data
+df <- df %>% mutate(across(everything(),
+                           .fns = ~replace(., . ==  "STATS" , "STAT")))
+```
+\
+Question 1:
+```{r}
+df_2 <- df %>% pivot_longer(c(3:8), 
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(discipline == "STAT")
+semi_join(df, df_2, by = "adm_id")
+
+
+stat_df <- df %>% filter(major1 == "STAT" | major2 == "STAT" | major3 == "STAT") %>%
+  pivot_longer(c(3:8), 
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(!is.na(discipline) & discipline != "STAT") %>%
+  filter(type == "major1" | type == "major2" | type == "major3")
+
+stat_graph_df <- stat_df %>% group_by(discipline) %>% summarise(ndiscipline = n()) %>%
+  mutate(discipline_ordered = fct_reorder(.f = discipline, .x = ndiscipline))
+
+ggplot(data = stat_graph_df, aes(x = ndiscipline, y = discipline_ordered)) +
+  geom_col() +
+  labs(x = "nstudent",
+       y = "discipline")
+```
+\
+Question 2:
+```{r}
+df %>% filter(sex == "F") %>% pivot_longer(c(3:8), 
+                                           values_to = "discipline",
+                                           names_to = "type") %>% 
+  filter(type == "major1" | type == "major2" | type == "major3") %>%
+  filter(!is.na(discipline)) %>% 
+  group_by(sex, discipline) %>% 
+  summarise(nstudents = n()) %>%
+  ungroup() %>% 
+  group_by(discipline) %>%
+  mutate(ntotal = sum(nstudents))
+
+female_majors <- df %>% pivot_longer(c(3:8), 
+                    values_to = "discipline", 
+                    names_to = "type") %>% group_by(sex, discipline) %>% summarise(femalenmajors = n()) %>% filter(sex == "F")
+
+total_majors <- df %>% pivot_longer(c(3:8), 
+                    values_to = "discipline", 
+                    names_to = "type") %>% group_by(discipline) %>% summarise(totalmajors = n()) %>% filter(totalmajors >= 50)
+lolli_graph <- left_join(total_majors, female_majors, by = "discipline") %>% select(discipline, totalmajors, femalenmajors)
+prop_lolli_graph <- lolli_graph %>% mutate(propfemales = femalenmajors/totalmajors) %>% mutate(discipline_ordered = fct_reorder(.f = discipline, .x = propfemales)) %>% filter(!is.na(discipline))
+ggplot(data = prop_lolli_graph, aes(x = discipline_ordered, y = propfemales)) +
+  geom_point() +
+  geom_segment(aes(x = discipline, xend = discipline, y = 0, yend = propfemales)) +
+  coord_flip() +
+  labs(x = "discipline",
+       y = "Proportion of Female Majors in Past 5 Years")
+```

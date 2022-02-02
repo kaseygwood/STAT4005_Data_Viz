@@ -1,0 +1,262 @@
+---
+title: "Section 5: Tidyverse Review"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Aside: Baseline of Zero?
+
+```{r}
+library(tidyverse)
+library(palmerpenguins)
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  xlim(0,60) +
+  ylim(0,25)
+```
+
+
+Section 5.1: Billboard
+```{r}
+## install.packages("billboard")
+library(billboard)
+head(wiki_hot_100s)
+tail(wiki_hot_100s)
+max(wiki_hot_100s$year)
+library(rvest)
+library(tidyverse)
+
+top10 <- wiki_hot_100s %>%
+  filter(year >= 2000 & year <= 2009) %>% 
+  group_by(artist) %>%
+  summarise(nsongs = n()) %>%
+  arrange(desc(nsongs)) %>% 
+  slice(1:10) %>%
+  mutate(artist = fct_reorder(artist, nsongs))
+
+ggplot(data = top10, aes(x = artist, y = nsongs)) +
+  geom_bar(stat = "identity") +
+  coord_flip()
+```
+
+5.1.1 Exercises
+\
+Exercise 2. There is a minor flaw in the way that we counted up the number of hits for each artist. Examine the 2nd to last row of the original data set with tail() to look at this potential flaw. What do you find?
+```{r}
+tail(wiki_hot_100s)
+### you find that there are two artists on that one song, which was not taken into account when we added the number of hits for the artist. This would make it so these two artists would lose a song due to this one not counting because the artist is different.
+```
+\
+\
+Exercise 4. Change the plot from Exercise 1 to be a Lollipop chart using this website as a reference. Why might the lollipop chart be better than a bar plot?
+
+```{r}
+ggplot(data = top10, aes(x = artist, y = nsongs)) +
+  geom_point() +
+  geom_segment(aes(x = artist, xend = artist, y = 0, yend = nsongs)) +
+  coord_flip()
+```
+\
+A lollipop chart might be better than a bar plot because there is a point on the total number of songs they have, so it may be easier to see the output and compare between artists.
+\
+\
+Exercise 5. Use this website to customize the end points of your lollipop chart. If you have time, you can explore the other customization options. Make it look fancy!
+\
+```{r}
+ggplot(data = top10, aes(x = artist, y = nsongs)) +
+  geom_point(size = 2, color = "red", fill = alpha("red", 0.3), alpha = 0.7, shape = 21, stroke = 2) +
+  geom_segment(aes(x = artist, xend = artist, y = 0, yend = nsongs)) +
+  coord_flip()
+```
+
+
+```{r}
+## provide the URL and name it something (in this case, url).
+## paste0 pastes together the base URL and the year into a single string:
+## this will be useful in a moment
+year <- 2017
+
+## convert the html code into something R can read
+
+webpage <- paste0("https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_", year)
+content <- webpage %>% 
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
+  read_html() 
+
+## grabs the tables
+tab <- content %>% html_nodes("table")
+df <- tab[[1]] %>% html_table() %>%
+  mutate(year = 2017)
+df
+get_wiki_100 <- function(year) {
+  
+  ## same code as before, replacing 2017 with year.
+webpage <- paste0("https://en.wikipedia.org/wiki/Billboard_Year-End_Hot_100_singles_of_", year)
+content <- webpage %>% 
+  httr::GET(config = httr::config(ssl_verifypeer = FALSE)) %>% 
+  read_html()   
+  
+tab <- content %>% html_nodes("table")
+df <- tab[[1]] %>% html_table() %>%
+    mutate(year = year)
+  
+  ## tell our function to return the dataframe `df`
+  return(df) 
+}
+get_wiki_100(year = 2017)
+library(purrr)
+year_list <- list(2017, 2018, 2019, 2020, 2021)
+year_list
+
+df_all <- map(year_list, get_wiki_100)
+df_all ## a list of data frames, one for each year
+df_2017_present <- bind_rows(df_all)
+df_2017_present <- df_2017_present %>%
+  mutate(Title = str_remove_all(Title, pattern = "\"")) %>% ## get rid of \ in title
+  rename(no = No., 
+         title = Title, 
+         artist = `Artist(s)`) ## make column names match with billboard package
+
+wiki_tibble <- as_tibble(wiki_hot_100s) %>% ## convert billboard data to tibble
+  mutate(year = as.numeric(year),
+         no = as.integer(no)) ## change variable types to match with scraped data
+
+hot100_df <- bind_rows(wiki_tibble, df_2017_present)
+```
+
+Exercise 6. Use the hot100_df to make either a bar plot or a lollipop chart of the most popular artists of the 2010s (2010 through 2019). It may be helpful to make this plot without looking back at the code for the 2000s plot until you get stuck.
+```{r}
+top15_df <- hot100_df %>% filter(year >= 2010 & year <= 2019) %>% 
+  group_by(artist) %>%
+  summarise(nsongs = n()) %>%
+  arrange(desc(nsongs)) %>% 
+  slice(1:15) %>%
+  mutate(nsongs_ordered = fct_reorder(artist, nsongs))
+ggplot(data = top15_df, aes(x = nsongs_ordered, y = nsongs)) +
+  geom_point() +
+  geom_segment(aes(x = nsongs_ordered, xend = nsongs_ordered, y = 0, yend = nsongs)) +
+  coord_flip() +
+  labs(x = "artist",
+       y = "number of songs")
+```
+
+Exercise 7. Much of the code to scrape the data, using purrr to iterate over the scrape, and then combining the list of data frames to a single data frame may be new. It is not expected that you are able to write this code on your own, but you should have an overall understanding of what the code is doing. Write 2-3 sentences that summarizes the overall purpose of the rvest and purrr code.
+\
+This code grabs the data from the internet in an html file and then turns it into something that r can read. Then it grabs the table from the site and returns it in r in a better version for r to work with.
+
+5.2 More tidyverse Review: Happy Planet Index
+
+```{r}
+library(tidyverse)
+hpi_df <- read_csv("data/hpi-tidy.csv")
+hpi_df
+```
+
+5.2.1 Making a Scatterplot and Labeling Points
+```{r}
+ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point()
+hpi_us <- hpi_df %>% filter(Country == "United States of America")
+hpi_us
+ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point() +
+  geom_label(data = hpi_us, aes(label = Country)) ## specify
+## data = hpi_us so geom_label only uses the observation in hpi_us
+library(ggrepel)
+ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point() +
+  geom_label_repel(data = hpi_us, aes(label = Country)) +
+  geom_point(data = hpi_us, size = 3, shape = 1) ## create a second point that is an open circle (shape = 1) with a larger size (size = 3) to surround the United States point on the scatterplot
+```
+
+Exercise 1. Change the code to label 3 countries of interest. Recall that you will need to use the | operator in the dplyr::filter() function.
+```{r}
+label3 <- hpi_df %>% filter(Country == "New Zealand" | Country == "Australia" | Country == "Kenya")
+ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point() +
+  geom_label_repel(data = label3, aes(label = Country)) +
+  geom_point(data = label3, size = 3, shape = 1)
+```
+
+5.2.2 plotly to Lable Points Interactively
+```{r}
+## install.packages("plotly")
+library(plotly)
+plot1 <- ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point()
+ggplotly(plot1)
+plot1 <- ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing,
+                                   label = Country)) +
+  geom_point()
+ggplotly(plot1, tooltip = "label")
+```
+
+## Exercise 2
+```{r}
+plot2 <- ggplot(data = top10, aes(x = artist, y = nsongs, label = nsongs)) +
+  geom_point() +
+  geom_segment(aes(x = artist, xend = artist, y = 0, yend = nsongs)) +
+  coord_flip()
+ggplotly(plot2, tooltip = "label")
+```
+
+## Exercise 3
+
+Advantages: interesting, allows user to explore
+Disadvantages: requires a computer, adds extra "stuff", bad for making a particular point about the graph (like Western countries have high footprint)
+
+5.2.3 Themes and Colour Changes
+```{r}
+ggplot(data = hpi_df, aes(x = Footprint, y = Wellbeing)) +
+  geom_point() +
+  geom_label_repel(data = hpi_us, aes(label = Country)) +
+  geom_point(data = hpi_us, size = 3, shape = 1) +
+  labs(title = "Countries with a Higher Ecological Footprint Tend to Have Citizens with Higher Wellbeing", ## add title
+    subtitle = "Wellbeing is on a 1-10 scale", ## add subtitle (smaller text size than the title)
+    caption = "Data Source: http://happyplanetindex.org/countries", ## add caption to the bottom of the figure
+    x = "Ecological Footprint", ## change x axis label
+    y = "Wellbeing") ## change y axis label
+```
+
+5.2.4 Changing a Colour Scale
+```{r}
+ggplot(data = hpi_df, aes(x = Footprint, y = HappyLifeYears, colour = Region)) +
+  geom_point() +
+  scale_colour_brewer(palette = "Set2")
+ggplot(data = hpi_df, aes(x = Footprint, y = HappyLifeYears, colour = Region)) +
+  geom_point() +
+  scale_colour_viridis_d(option = "plasma")
+## d is for categorical variables and c is for continuous variables. b is for binning a continuous variable 
+ggplot(data = hpi_df, aes(x = Footprint, y = HappyLifeYears)) +
+  geom_point() +
+  facet_wrap( ~ Region)
+library(palmerpenguins)
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) ## colour is good enough here
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  facet_wrap( ~ species) ## faceting probably unnecessary: colour is better
+```
+
+Faceting is more useful if:
+* there are "more" categories and
+* if there is a lot of overlap between groups
+
+```{r}
+colour_bad <- tibble(x = rnorm(500, 0, 1), y = rnorm(500, 0, 1),
+       groupvar = c(rep("A", 50), rep("B", 50),
+                    rep("C", 50), rep("D", 50),
+                    rep("E", 50), rep("F", 50), rep("G", 50),
+                    rep("H", 50), rep("I", 50), rep("J", 50)))
+
+ggplot(data = colour_bad, aes(x = x, y = y, colour = groupvar)) +
+  geom_point() + ## can't distinguish anything really: colour is bad
+  geom_smooth(se = FALSE)
+ggplot(data = colour_bad, aes(x = x, y = y)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_wrap( ~ groupvar) ## faceting better
+```

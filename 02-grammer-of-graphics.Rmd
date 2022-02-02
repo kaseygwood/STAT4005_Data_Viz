@@ -1,0 +1,139 @@
+---
+title: 'Section 2: Motivation and Grammer of Graphics'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+## install.packages("palmerpenguins")
+library(palmerpenguins)
+library(tidyverse)
+penguins
+```
+
+2.2.1 <DATA>, <MAPPINGS>, AND <GEOM_FUNCTION>
+```{r}
+## single quantitative frequency plot
+ggplot(data = penguins, aes(x = bill_length_mm)) +
+  geom_freqpoly() 
+## single categorical barplot
+ggplot(data = penguins, aes(x = species)) +
+  geom_bar()
+## two quant scatterplot
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth()
+## two cat heatmap
+ggplot(data = penguins, aes(x = species, y = island)) +
+  geom_bin_2d()
+```
+
+Review Exercises:
+```{r}
+##1
+ggplot(data = penguins, aes(x = species, y = bill_length_mm)) +
+  geom_boxplot()
+##2a
+ggplot(data = penguins, aes(x = bill_length_mm)) +
+  geom_freqpoly(colour = "red") 
+##2b
+ggplot(data = penguins, aes(x = bill_length_mm)) +
+  geom_freqpoly(aes(colour = species)) 
+##3
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm, colour = species)) +
+  geom_point() +
+  geom_smooth()
+##4a
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point(aes(colour = species)) +
+  geom_smooth()
+#4b
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth(aes(colour = species))
+```
+
+2.2.2 <FACET>
+```{r}
+### stacked vertically facet graph
+ggplot(data = penguins, aes(x = bill_length_mm)) +
+  geom_histogram(colour = "black", fill = "white") +
+  facet_wrap(~ species, ncol = 1)
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(~ species)
+```
+
+2.2.3 <STAT>, <POSITION>, <COORDINATE FUNCTION>
+```{r}
+ggplot(data = penguins, aes(x = species)) +
+  geom_bar(stat = "count") ## don't need stat = "count" because it's the default.
+
+penguinscount <- penguins %>% group_by(species) %>%
+  summarise(ncount = n())
+
+ggplot(data = penguinscount, aes(x = species, y = ncount)) +
+  geom_bar(stat = "identity") ## identity means no position adjustment, so it helps when you want to add a y aesthetic
+
+ggplot(data = penguins, aes(x = species, fill = sex)) +
+  geom_bar(position = "stack") + ## don't need "stacked" because it's default
+  scale_fill_viridis_d()
+
+penguins_nomiss <- penguins %>% filter(is.na(sex))
+penguinscount <- penguins_nomiss %>% group_by(species) %>%
+  summarise(ncount = n())
+
+ggplot(data = penguins_nomiss, aes(x = species, fill = sex)) +
+  geom_bar(position = "dodge") + ## changes position so it's a side by side barplot
+  scale_fill_viridis_d()
+
+ggplot(data = penguins, aes(x = bill_depth_mm, y = bill_length_mm)) +
+  geom_point(stat = "identity", position = "identity") +
+  facet_null() + ##default
+  coord_cartesian() ##default
+###all of the aesthetic mapping etc in this particular graph are default
+
+
+ggplot(data = penguins, aes(x = species)) +
+  geom_bar() +
+  coord_polar() 
+ggplot(data = penguins, aes(x = species)) + 
+  geom_bar() +
+  coord_flip()
+```
+
+2.3 Plot Themes
+```{r}
+## a very ugly plot
+ggplot(data = penguins, aes(x = bill_length_mm, y = bill_depth_mm,
+                            colour = species)) +
+  geom_point() +
+  geom_smooth() +
+  theme(plot.background = element_rect(fill = "darkred"),
+        legend.background = element_rect(fill = "orange"),
+        axis.ticks.length.x = unit(1.1, "cm"),
+        legend.margin = unit(2, "cm"),
+        legend.key = element_rect(fill = "darkorange3", colour = "blue")) +
+  scale_colour_manual(values = c("yellow", "green", "purple"))
+```
+
+```{r}
+library(tidyverse)
+category <- rep(c("Group 1", "Group 2", "Group 3", "Group 4", "Group 5"), 7)
+time <- rep(c(2000, 2001, 2002, 2003, 2004, 2005, 2006), each = 5) 
+response <- rpois(length(category), 30)
+df <- tibble(category, time, response)
+ggplot(data = df, aes(x = time, y = response)) +
+  geom_col(aes(fill = category)) +
+  labs(y = "count") +
+  scale_fill_viridis_d()
+
+ggplot(data = df, aes(x = time, y = response)) +
+  geom_line(aes(colour = category)) +
+  labs(y = "count") +
+  scale_colour_viridis_d()
+```
