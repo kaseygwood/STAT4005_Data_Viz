@@ -1,0 +1,57 @@
+---
+title: "Quiz 2 In Class"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.”
+\
+Kasey Wood
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(here)
+df <- read_excel(here("data/slu_graduates_17_21.xlsx"))
+## fixes error in the data
+df <- df %>% mutate(across(everything(),
+                           .fns = ~replace(., . ==  "STATS" , "STAT")))
+
+df_long <- df %>% pivot_longer(3:8, names_to = "type", values_to = "discipline")
+
+df_major <- df_long %>% 
+  filter(type == "major1" | type == "major2" | type == "major3")
+```
+
+```{r}
+lolli_graph <- df_major %>% group_by(discipline) %>% summarise(nstudents = n()) %>% arrange(desc(nstudents)) %>% filter(!is.na(discipline)) %>% slice (1:10) %>% mutate(discipline_ordered = fct_reorder(.f = discipline, .x = nstudents))
+ggplot(data = lolli_graph, aes(x = discipline_ordered, y = nstudents)) +
+  geom_point() +
+  geom_segment(aes(x = discipline_ordered, xend = discipline_ordered, y = 0, yend = nstudents)) +
+  coord_flip()
+```
+
+```{r}
+df <- df %>% mutate(across(everything(),
+                           .fns = ~replace(., . ==  "STATS" , "STAT")))
+df_2 <- df %>% pivot_longer(c(3:8), 
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(discipline == "STAT")
+semi_join(df, df_2, by = "adm_id")
+stat_df <- df %>% filter(major1 == "STAT" | major2 == "STAT" | major3 == "STAT") %>%
+  pivot_longer(c(3:8), 
+               values_to = "discipline",
+               names_to = "type") %>%
+  filter(!is.na(discipline) & discipline != "STAT") %>%
+  filter(type == "minor1" | type == "minor2" | type == "minor3")
+stat_graph_df <- stat_df %>% group_by(discipline) %>% summarise(ndiscipline = n()) %>%
+  mutate(discipline_ordered = fct_reorder(.f = discipline, .x = ndiscipline))
+ggplot(data = stat_graph_df, aes(x = ndiscipline, y = discipline_ordered)) +
+  geom_col() +
+  labs(x = "nstudent",
+       y = "minor")
+```
