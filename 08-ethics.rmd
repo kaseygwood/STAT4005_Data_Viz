@@ -1,0 +1,61 @@
+---
+title: "08-ethics"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+8.1.1 
+\
+Exercise 1. Examine the data set on on page 6 of this link. The graph now includes all of the data points. However, explain why this graph is still not a good visualization of the data set. What could be done to improve the graph? Hint: ?geom_jitter().
+\
+This graph is still not a good visualization for the data set because there are many points just sitting on the x-axis line at y=0. To improve this graph we could group the points using geom_jitter in order to make the graph more randomized. This will group the data, so it will be easier to see visually.
+\
+\
+\
+8.1.2
+\
+Exercise 1. Pick 1 of the 3 examples (stand your ground, climate change, or covid cases), and summarize why that graphic is not ethical. Make sure to include the context that the graph was created in from Section 8.3 in your explanation.
+\
+The stand your ground graphic is not ethical because they switched the direction of the y-axis and didn't make any note of it on the graph. This graphic was made in order to show the change in gun murders after the  stand your ground law was put into place, so they wanted to show that it was decreasing. The only way they were able to show that it decreased after this law was passed was by flipping the y-axis so the 0 axis was all the way on the top. This makes it difficult for a person to read the graph especially if they don't know to check the axes.
+\
+\
+Exercise 2. Choose 2 of the 12 principles of ethical practice of data science and come up a (possibly hypothetical) scenario where each of your two chosen principles would come into play.
+\
+If you are creating a project and it is going really well for a while and you have basically all of your data analyzed, but you realize you forgot to add a section of the data that is actually very important to answering the question. You must first clearly identify the questions and objectives that drive your project so that you don't miss anything again. You also must be open to changing our methods and conclusions in response to new knowledge. This might be more difficult if you already have a conclusion, but also sometimes the same method won't work if the data set has been changed.
+\
+\
+Exercise 3a. Find a graphic on the Internet that shows evidence that the Covid vaccine has “worked.”
+\
+https://www.statista.com/chart/26159/covid-cases-us-age-group-vaccination-status/ 
+\
+\
+Exercise 3b. Find a graphic on the Internet that shows evidence that the Covid vaccine has “not worked.”
+\
+https://www.ronjohnson.senate.gov/vaccine-side-effects-and-mandates
+\
+\
+Exercise 1. Which of the two visualizations better humanizes the victims of lynching? Why?
+\
+The first graphic better humanizes the victims because it uses the chloropleth map which shows heat temperature go up on the graph when the number of people go up. Showing a heat chart to represent how many people are there is more humanizing than just little dots.
+\
+\
+Exercise 2. Suppose that you want to humanize the victims more in a static, non-interactive graph. Brainstorm ways that you could achieve this.
+\
+You could more humanize on a graph by labeling each point with a name outright. The second graph did have labels for the names, but they weren't seen when you initially look at the graph. 
+\
+\
+Exercise 3. A deeper discussion of these sites appears in this paper. Read the Introduction section on TayTweets and write 3 major takeaways from this section.
+\
+1.) It is very easy to be harmful without actually trying to be. Like with the TayTweets they were not trying to be harmful at all, but it ended up being racist. They had no way of knowing this could happen, but they took it down when this started happening and I think the same goes for data visualizations. If a graphic seems good at first, but then you realize there are underlying parts to it, you can always try and take it down.
+\
+2.) You must always consider the underlying human approach to looking at a graphic. So, try to think like how your audience will look at the graph to make sure they will read it in the way you think they will.
+\
+3.) Data is constantly changing as we can see with how TayTweets changed significantly, so we must always adjust what we are doing depending on our output.
+\
+\
+Exercise 4. The authors of the book Data Feminism argue that “leveraging emotion” might help us better communicate with data. Read the first four paragraphs of Chapter 3 of the Data Feminism book. One example the authors use pertains to deaths from gun violence in the United States. Examine this animated chart. Explain how the chart uses emotion to convey the losses due to gun violence better than, for example, a statement that 11,356 people were killed from gun violence in 2018.
+\
+This chart uses emotion by showing what each person's life would be like as a full human life. It also says they could've lived to be a certain number of years, which shows that they are real people and not just dots on a screen. It also shows how many years they lost all together, which shows loss and causes people to feel more emotions about the subject.
