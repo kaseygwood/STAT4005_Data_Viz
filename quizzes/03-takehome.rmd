@@ -1,0 +1,37 @@
+---
+title: "03-takehome"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Statement of Integrity: Copy and paste the following statement and then sign your name (by typing it) on the line below.
+\
+“All work presented is my own, and I have followed all rules for collaboration.”
+\
+Kasey Wood
+\
+\
+\
+Question 1 (5 points). Consider the Challenger example in our course notes. Clearly, the graphic used to communicate the results is poorly made: it eliminates data points when it really should not. However, the engineers making the graph did not have “malicious intent:” they did not purposefully remove these data points to try to lie: it was a mistake. Is the visualization still unethical? Use principles from the Modern Data Science Readings to explain in a few sentences.
+\
+This visualization is still unethical because some of the principles in the readings state that your work may lead to unintended circumstances. The third principle in the Hippocratic Oath states that you must remember your data isn't just numbers without meaning or context so there could be unintended consequences. So maybe these men did not consider the context of their graphic enough. One of the principles is also "Clearly identify the questions and objectives that drive each project and use to guide both planning and refinement". You could say that these engineers did not follow this principle because the graph they chose to use only showed what temperatures caused issues when really we want to know what temperatures did not cause issues. So, maybe they were not asking the right question and did not think it through enough, which could be considered unethical when there can be such bad consequences.
+\
+\
+Question 2 (4 points). Find a graphic online, other than any given in our course readings, that is unethical. Provide a link to your graphic and give a 2-3 sentence description explaining why that graphic is not ethical.
+\
+https://study.com/skill/practice/identifying-misleading-line-graphs-questions.html .
+The first graph in this link is not ethical because the scale on the axis is causing the graph to answer the question differently than it would be, so they weren't asking the right question and biased the graph. The graph shows a percentage through time on a line graph, but the scale on the y-axis only goes from 4-5%, so it is misleading the the viewer. It looks as through the graph is showing residents preferred diet soda a lot more from 2003-2005, when really it just moved by approximately a percentage point.
+\
+\
+Question 3 (3 points). Explain, in your own words, what each of the following Git terms mean:
+\
+commit: Commit is when you are done editing that version of your document, so you commit it to the pathway. This puts the document in the pathway, but does not save the document to github yet, it just saves the document how it is.
+\
+push: Push is what you do when you want the document to show up in github, so you are pushing the document from the pathway to github.
+\
+pull: Pull is when you want to take a document from github, so you can have the document on your own laptop and in your own documents.
+\
+Question 4 (3 points). These three points are given if you successfully committed with a commit message and pushed your .Rmd and .html files to your GitHub account.
