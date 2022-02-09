@@ -1,0 +1,42 @@
+---
+title: "03-inclass"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Statement of Integrity: Copy and paste the following statement and then sign your name (by typing it) on the line below.
+\
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.”
+\
+Kasey Wood
+\
+\
+Question 1 (5 points). Suppose you do the following:
+\
+You go to your GitHub site and make a change to the README file (adding a sentence, for example).
+In R Studio, you update one of your .Rmd files, adding a line of code and commit the file.
+You attempt to push the new file to your GitHub site.
+Once you get to the third step, you’ll get an error when you try to push. Why? What do you need to do first before you make the push in Step 3?
+\
+This happened because before you make the push in step 3, you must pull the README file into your own environment. The README file was stuck in the pathway and was not letting the files from r studio go through to GITHUB.
+\
+\
+Question 2 (6 points). Give 2 advantages of using Git and GitHub. These must be advantages that we discussed in class (so you should not simply google “advantages of Git” and give the first two things that pop up).
+\
+One advantage of using Git and GitHub is that you can save files as they are and go back to a later version of that file. As long as the file was committed and pushed to GitHub before it was changed to a new version, then you can get back to it using GitHub. Another advantage of Git and GitHub is you can share your work with other people along with see other people's work and work along with it. This way other people can make comments on your project that may help you at a stuck point.
+\
+\
+Question 3 (6 points). Choose 1 of the 12 principles of the ethical practice of data science that you think is the most difficult to execute. Give a short, possibly hypothetical, example that illustrates how that principle could be difficult to follow.
+\
+I thik the most difficult principle to execute is principle number 6. "Be open to changing our methods and conclusions in response to new knowledge". This could be difficult to follow in the situation that you have done all your research and data collection on a topic, for example economic inequality. You are presenting this research in hopes of showing something specific that you found with your research, but one of your fellows brought it to your attention that a piece was missing that changed the outcomes of the data. The piece of data is barely noticable and if you add it your presentation won't be the same, but it is still there so you still have to change your methods and conclusions. This could be difficult when it is easiest to just keep with what you have.
+\
+\
+Question 4 (6 points). The authors of Data Feminism argued that data scientists should “embrace emotion,” not ignore it when building visuals. State the example that the authors used to show how emotion can be used to make a visual stronger. Then, give an argument against “embracing emotion.” In other words, give an argument that data visualizations should be devoid of emotion as much as possible, even if that’s not what you believe.
+\
+The example that the authors used is the number of gun deaths in the United States in 2013. They used this example to show that people lives can't just be left to a dot on a graph, so the graphic shows their wholes lives and the number of years they lost as well. Data examples should be void from emotion because emotion can change how people make the visualizations look and they may confuse the reader. It is better to keep it simple, otherwise it may be too much to look at to actually see what the data points say. It is very difficult to read the data points on the graphic in data feminism, so if it is about the data then it shouldn't be about emotions.
+\
+\
+Question 5 (2 points). These two points are given for committing your .Rmd and .html files with a commit message correctly, and pushing them to your GitHub site.
