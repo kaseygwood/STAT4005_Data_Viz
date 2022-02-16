@@ -1,0 +1,36 @@
+---
+title: "04-inclass"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.”
+\
+Kasey Wood
+\
+Question 1 (20 points). Examine the alcohol.csv data set that you may have used as an introductory data set in STAT/DATA 234:
+\
+Construct a map of the beer_servings variable. You should choose an appropriate projection and change the default colour scheme of your map.
+\
+```{r}
+library(tidyverse)
+library(here)
+library(maps)
+alcohol_df <- read_csv(here("data/alcohol.csv"))
+world_df <- ggplot2::map_data("world")
+alcohol_full <- left_join(world_df, alcohol_df, by = c("region" = "country"))
+ggplot(data = alcohol_full, 
+       mapping = aes(x = long, y = lat,
+                     group = group)) +
+  geom_polygon(aes(fill = beer_servings), colour = "black") +
+  coord_map(projection = "globular", xlim = c(-180,180)) +
+  theme_void() +
+  scale_fill_distiller(direction = 1)
+```
+\
+Question 2 (5 points). Give an example of a question of interest about the alcohol data where you would want to construct a visualization other than a map to answer the question. What type of visualization would you construct instead?
+\
+One example of a visualization other than a map would be if you are comparing how many servings of wine and beer each country drinks and trying to figure out which countries drink more wine and which countries drink more beer. A better type of visualization for this would be side by side barplots. So, there would be two bars for each country and each bar represents either the beer or wine servings of that country. This visualization would most likely not include all of the countries because there would not be enough room on the plot for 193 countries. 
