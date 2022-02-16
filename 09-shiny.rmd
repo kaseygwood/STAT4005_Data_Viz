@@ -1,0 +1,22 @@
+---
+title: "09-shiny"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Exercise 1. What makes the app given in the first tab interactive? In other words, what is a user allowed to change in the app?
+\
+The user is allowed the change the sample size, intercept, slope, and the standard deviation of residuals.
+\
+Exercise 2. What are the outputs of the app? Are the outputs graphs, tables, or both?
+\
+Both graphs and tables are included as outputs of the app.
+\
+Now, examine one of the apps at this r studio shiny gallery.
+\
+Exercise 3. Write a short one paragraph description about the app you selected, including what the app allows the user to change, what the output is, and one interesting thing you found in the app.
+\
+I chose the COVID-19 tracker app. This app allows the user to change the mapping date. It also allows you to choose what information you want displayed on the graph. The possible options for this are 2019-COVID(new), 2019-COVID(cumulative), 2003-SARS, 2009-H1N1(swine flu), 2014-Ebola. For these options you can choose to have any grouping of these on the graph at the same time. The output is a graph that shows the deaths per million. The output also includes the number of cases and deaths on that mapping date. One interesting thing I found about this app is that you can compare the covid spread to other pandemics we have had before and you can see that COVID has seemed to hit harder than any other pandemic.
