@@ -1,0 +1,74 @@
+---
+title: "05-takehome"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own, and I have followed all rules for collaboration.”
+\
+Kasey Wood
+\
+\
+Use the STAT 113 survey data set to explore the trend in the popularity of Facebook over time. Do this in 2 ways:
+\
+(7 points). Construct a graph that uses the number of Facebook friends each student has.
+
+```{r}
+library(tidyverse)
+statsurvey_df <- read_csv("data/stat113_survey.csv")
+
+statsurvey_fb <- statsurvey_df %>%
+  filter(na.rm = TRUE) %>% 
+  group_by(time_both) %>%
+  summarise(nfriends = sum(Facebook, na.rm = TRUE))
+
+statsurvey_fb <- statsurvey_fb %>% 
+  separate(time_both, into = c("semester", "year"), sep = 1)
+
+statsurvey_fb <- statsurvey_fb %>% 
+  arrange(desc(year), desc(semester)) %>% 
+  unite(col = "time_both", c(semester, year)) %>%
+  mutate(time_both = fct_inorder(time_both))
+  
+ggplot(data = statsurvey_fb, aes(x = time_both, y = nfriends)) +
+  geom_col() +
+  coord_flip()
+```
+
+(7 points). Construct a graph that uses the proportion of students that have Facebook (assuming that 0 friends means that the student does not have a Facebook account and more than 0 friends means that the student does have a Facebook account).
+```{r}
+statsurvey_fb2 <- statsurvey_df %>%
+  filter(na.rm = TRUE) %>%
+  mutate(facebook = if_else(Facebook >= 1, "yes", "no"))
+
+statsurvey_graph <- statsurvey_fb2 %>% 
+  filter(na.rm = TRUE) %>% 
+  group_by(time_both, facebook) %>%
+  summarise(ncount = n()) %>%
+  ungroup() %>%
+  group_by(time_both) %>%
+  mutate(ntotal = sum(ncount)) %>%
+  ungroup() %>%
+  filter(facebook == "yes") %>%
+  mutate(prop = ncount / ntotal)
+
+statsurvey_graph <- statsurvey_graph %>% 
+  separate(time_both, 
+           into = c("semester", "year"), 
+           sep = 1)
+statsurvey_graph <- statsurvey_graph %>% 
+  arrange(year, desc(semester)) %>% 
+  unite(col = "time_both", c(semester, year)) %>%
+  mutate(time_both = fct_inorder(time_both))
+
+
+ggplot(data = statsurvey_graph, aes(x = time_both, y = prop)) +
+  geom_col() +
+  labs(y = "proportion",
+       x = "semester")
+```
+
+1 point is provided for committing and pushing to GitHub correctly.
