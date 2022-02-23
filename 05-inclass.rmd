@@ -1,0 +1,45 @@
+---
+title: "05-inclass"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+“All work presented is my own. I have not communicated with or worked with anyone else on this quiz.”
+\
+Kasey Wood
+Question 1 (7 points). Consider the following two bar plots using the palmerpenguins data set. The first is a plot of the penguin species while the second is a plot of the average bill length for each species.
+\
+1. Plot 1 is appropriate to construct because it is showing a count therefore it is appropriate to construct a barplot because it shows the data accurately. The second graph isn't as appropriate because it is charting an average as a bar(so showing an average how we would show a count), which should be charted more as a point on the plot. 
+\
+\
+Question 2 (9 points). Use the Happy Planet Index data set to construct a graph that does not properly show variability in the underlying data. Recall that some variables in this data set are LifeExpectancy, Wellbeing, Footprint, and Region of the world.
+```{r}
+library(tidyverse)
+hpi_df <- read_csv("data/hpi-tidy.csv")
+hpi_notvariable <- hpi_df %>%
+  group_by(Region) %>%
+  summarise(avle = mean(LifeExpectancy))
+ggplot(data = hpi_notvariable, aes(x = Region,
+                                   y = avle)) +
+  geom_col() +
+  coord_flip() +
+  labs(y = "Average Life Expectancy")
+```
+\
+\
+Question 3 (7 points). Fix your graph from the previous question so that it does properly show variability in the underlying data.
+```{r}
+hpi_variable <- hpi_df %>%
+  group_by(Region) %>%
+  summarise(meanle = mean(LifeExpectancy),
+            sdle = sd(LifeExpectancy),
+            nle = n()) %>%
+  mutate(l_se = meanle - sdle / sqrt(nle),
+         u_se = meanle + sdle / sqrt(nle))
+ggplot(data = hpi_variable, aes(x = Region, y = meanle)) +
+  geom_point() +
+  geom_errorbar(aes(ymin = l_se, ymax = u_se)) +
+  coord_flip()
+```
