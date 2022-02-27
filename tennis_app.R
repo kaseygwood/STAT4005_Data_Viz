@@ -51,9 +51,18 @@ ui <- fluidPage(
               radioButtons(inputId = "variable",
                            label = "Choose a Variable",
                            choices = c("ace", "df", "svperc", "firstwon", "secondwon")),
-              numericInput(inputId = "bins",
+              sliderInput(inputId = "bins",
                           label = "Number of Bins",
-                          value = 15)),
+                          min = 0,
+                          max = 100,
+                          value = 0,
+                          step = 5,
+                          animate = animationOptions(
+                            interval = 1000,
+                            loop = FALSE,
+                            playButton = NULL,
+                            pauseButton = NULL
+                          ))),
   mainPanel(plotOutput("playerhist")),
 )
 
@@ -68,3 +77,5 @@ server <- function(input, output, session) {
 }
 
 shinyApp(ui, server)
+
+
