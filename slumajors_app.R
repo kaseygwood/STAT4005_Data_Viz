@@ -25,6 +25,11 @@ df_nostat <- df_statfull %>% filter(discipline != "STAT" &
 ggplot(data = df_nostat, aes(x = discipline, y = nstudent)) +
   geom_col() +
   coord_flip()
+df_gender <- df_statfull %>% group_by(sex, discipline) %>%
+  summarise(nsex = n())
+df_gender <- df_statfull %>% filter(discipline == "STAT") %>%
+  group_by(sex) %>%
+  summarise(total = n())
 
 library(shiny)
 
@@ -33,10 +38,10 @@ ui <- fluidPage(
     sidebarPanel(radioButtons(inputId = "majorchoice", 
                              label = "Choose a Major", 
                              choices = c("MATH", "CS", "STAT"))),
-    mainPanel(plotOutput(outputId = "majorplot")),
+    mainPanel(plotOutput(outputId = "majorplot"),
+              tableOutput(outputId = "sex"))
   )
 )
-
 server <- function(input, output){
   
   df_update <- reactive({
@@ -58,6 +63,12 @@ server <- function(input, output){
         coord_flip()
     
   })
+    df_sex <- reactive({
+      df_gender <- df_statfull %>% filter(discipline == input$majorchoice) %>%
+        group_by(sex) %>%
+        summarise(total = n())
+    })
+    output$sex <- renderTable(df_sex())
 }
 
     
