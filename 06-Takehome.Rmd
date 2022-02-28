@@ -1,0 +1,59 @@
+---
+title: "06-Takehome."
+output: html_document
+---
+
+“All work presented is my own, and I have followed all rules for collaboration.”
+\
+Kasey Wood
+\
+```{r}
+library(tidyverse)
+pokemon_df <- read_csv("data/pokemon_full.csv")
+
+pokemon_type <- pokemon_df %>% filter(Type == "Grass") 
+
+library(shiny)
+
+ui <- fluidPage(
+  sidebarLayout(sidebarPanel(
+    selectizeInput("pokemontype",
+                   label = "Choose a Pokemon Type",
+                   choices = levels(factor(pokemon_df$Type)),
+                   selected = "Grass"),
+    radioButtons("varchoice", 
+                 label = "Choose a Statistic",
+                 choices = c("Attack", "Defense", "Speed")),
+    sliderInput("binnumber",
+                label = "Choose the Number of Bins",
+                min = 1,
+                max = 50,
+                value = 15,
+                step = 1)
+  ),
+  mainPanel(plotOutput("histogram")))
+)
+
+server <- function(input, output, session) {
+  pokemon_type <- reactive({
+    pokemon_df %>% filter(Type == input$pokemontype) 
+  })
+  histogram_plot <- reactive({
+    ggplot(data = pokemon_type(), aes(x = .data[[input$varchoice]])) +
+      geom_histogram(colour = "black", fill = "white", bins = input$binnumber)
+  })
+  output$histogram <- renderPlot({
+    histogram_plot()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+This app takes a type of pokemon prompted from the user and 
+a variable prompted by the user and gives out a histogram that
+shows the count of the specific variable type.
+The app also takes a bin number given by the user and
+outputs that number of bins in the histogram.
+The point of this app is to be able to see what the attack, defense, and speed variables
+look like between the different types of pokemon.
