@@ -1,0 +1,160 @@
+---
+title: "Midterm-Inclass"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this exam.”
+\
+Kasey Wood
+\
+Question 1 (20 points). Examine the following plot that uses the pokemon_full.csv data set. The plot gives the count of each Pokemon type.
+\
+part a: data, mapping, geom, stat, coordinate_function
+\
+part b: We would want to reorder Type so that it is in order of most to least so that our perception of the results of the data is accurate. Perception and data visualization is very important and we want to make the visualization as easy for the user to understand as possible. In the reading it talks about how our visual system is attracted to edges, so putting these in order allows us to see the edges more clearly and there is less of a chance of the user getting confused by what the trend of the data is. Another plus to this that is talked about in the data visualization reading is if we want to colour the data based on the count. The way we distinguish colour is through comparable comparisons to the colour in the background or next to it. So, it is important that these are in order if we want to use a sequential colour scale.
+\
+part c: We can't omit 0 from a bar plot because a lot of our perception depends on how we perceive geometric shapes generally. For example we often use a full area in order to represent a length or count (barplot). Since, we use barplots to represent a full area we need to include the (0,0) coordinate because otherwise it tells the user that the area does not start at 0. We can omit the 0 from point plots, however because point plots only represent and individual data point. So, a single data point tells the whole story for point plots, but for bar charts we need to be able to see the full area of the bar. We generally perceive points as just one single data point in general, so this is why we can do this as well.
+\
+Question 3 (5 points). Tell me something you learned about ethics in data visualization.
+\
+The biggest thing I learned about ethics in data visualization is the first step to creating an ethical visualization is to completely understand what your question you are trying to answer is. If you accidentally answer the wrong question with your visualization it can cause serious ethical issues and could be truly problematic. It's very important to be critical of yourself and not be afraid to pull back your visualization from the public if you realize that it may not be telling the full story. It is easy to pick and choose data points, but if you are going to do this you must have a reasonable explanation and you must represent this on your visualization somehow.
+\
+Question 4 (20 points).
+\
+part a:
+```{r}
+library(maps)
+library(tidyverse)
+library(here)
+election_df <- read_csv(here("data/2020_county_pres.csv")) %>%
+  group_by(state_name) %>%
+  summarise(total_gop = sum(votes_gop),
+            total_dem = sum(votes_dem)) %>%
+  mutate(percent_gop = 100 * total_gop / (total_gop + total_dem)) %>%
+  mutate(state_name = str_to_lower(state_name))
+```
+
+```{r}
+state_df <- ggplot2::map_data("state")
+state_full <- left_join(state_df, election_df, by = c("region" = "state_name"))
+ggplot(data = state_full,
+            mapping = aes(x = long, y = lat,
+                          group = group)) +
+  geom_polygon(aes(fill = percent_gop), colour = "black") +
+  coord_map(projection = "albers", lat0 = 39, lat1 = 45) +
+  theme_void() +
+  scale_fill_distiller(direction = 1)
+```
+\
+part b: The reason that there are so many more rows than 50 for this map is because R draws this map by placing a point on each unit in the graph. So, for each state there are many different variables that contain lat and long coordinates that are located in the state. R uses a polygon to draw this so in order to tell it where to fill in, we use latitude and longitude for maps. This way we can have as many different points as we need and we can draw a fairly accurately sized graph. So, if we plot all the latitude and longitude coordinates for a particular state we would be able to see that state on a plot. We brought together all the states in this graph however.
+\
+Question 5 (25 points). Construct a shiny app using the alcohol.csv data set that has a scatterplot of the number of wine servings vs. the number of beer servings. In the app, the user should be able to select a country and have a label for that country appear on the app.
+\
+```{r}
+library(shiny)
+library(tidyverse)
+library(ggrepel)
+library(here)
+alcohol_df <- read_csv(here("data/alcohol.csv"))
+
+onecountry_df <- alcohol_df %>% filter(country == "Australia")
+
+ggplot(alcohol_df, aes(x = beer_servings, y = wine_servings)) +
+  geom_point() +
+  geom_label_repel(data = onecountry_df, aes(label = country)) +
+  geom_point(data = onecountry_df, size = 3, shape = 1)
+
+library(shiny)
+
+ui <- fluidPage(
+  sidebarLayout(sidebarPanel(selectizeInput("country",
+                 label = "Choose a Country",
+                 choices = alcohol_df$country
+  ),
+  radioButtons("varchoice", 
+               label = "Choose a Statistic",
+               choices = c("beer_servings", "spirit_servings", "wine_servings"))),
+  mainPanel(plotOutput(outputId = "plot"),
+            plotOutput(outputId = "histogram"))))
+
+server <- function(input, output, session) {
+  alcohol_update <- reactive({
+    alcohol_df %>% filter(country == input$country)
+  })
+  alcohol_plot <- reactive({
+    ggplot(data = alcohol_df, aes(x = beer_servings, y = wine_servings)) +
+      geom_point() +
+      geom_label_repel(data = alcohol_update(), aes(label = country)) +
+      geom_point(data = alcohol_update(), size = 3, shape = 1)
+  })
+  output$plot <- renderPlot({
+    alcohol_plot()
+  })
+  stat_update <- reactive({
+    ggplot(data = alcohol_df, aes(x = .data[[input$varchoice]])) +
+      geom_histogram()
+  })
+  output$histogram <- renderPlot({
+    stat_update()
+  })
+}
+
+shinyApp(ui, server)
+```
+
+Question 7 (20 points). Consider again the women’s tennis data set, wta_matches_2019.csv, where each row corresponds to a match played on the WTA (Women’s Tennis Association) tour.
+\
+Construct a lollipop chart that shows the 10 WTA tennis players with the highest average number of aces in the 2019 season who have played at least 20 matches.
+\
+```{r}
+library(tidyverse)
+library(here)
+wta_df <- read_csv(here("data/wta_matches_2019.csv"))
+wta_long <- wta_df %>% pivot_longer(c(winner_name, loser_name),
+                                    names_to = "won_or_lost",
+                                    values_to = "player") %>%
+  select(won_or_lost, player, everything())
+wta_new <- wta_long %>% mutate(aces = case_when(won_or_lost == "winner_name" ~ "w_ace",
+                                     won_or_lost == "loser_name" ~ "l_ace"))
+wta_mean <- wta_new %>% 
+  group_by(player) %>% 
+  summarise(meanaces = mean(w_ace),
+            na.rm = TRUE)
+
+wta_twenty <- wta_new %>% 
+  group_by(player) %>%
+  summarise(nmatches = n()) %>%
+  filter(nmatches >= 20)
+
+wta_full <- semi_join(wta_mean, wta_twenty, by = c("player" = "player"))
+
+wta_ten <- wta_full %>% arrange(desc(meanaces)) %>% slice(1:10)
+
+
+ggplot(data = wta_ten, aes(x = player, y = meanaces)) +
+  geom_point() +
+  geom_segment(aes(x = player, xend = player, y = 0, yend = meanaces)) +
+  coord_flip()
+  
+```
+\
+Question 8 (20 points).
+
+part a. Consider the lollipop plot you made in Question 7. Why is this plot not the best plot to make to look at the top women’s servers in 2019? (There might be a couple of reasons but you should reference one that we have explicitly talked about in class a lot).
+\
+This plot is not the best plot to make to look at this because it shows a complete line that covers many different values for each server, even though we are only trying to represent the mean aces for each of the players. Mean aces is an average and stands for a single point in a data set, so we shouldn't use plots that cover a range for each categorical variable. We would want to use these type of plots when we are talking about an area or a count for example. When we are only worried about single data points, then we should just use point plots.
+\
+part b.
+```{r}
+ggplot(data = wta_ten, aes(x = player, y = meanaces)) +
+  geom_point() +
+  coord_flip()
+```
+
+
+
+
