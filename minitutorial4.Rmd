@@ -1,0 +1,225 @@
+---
+title: "Mini-Tutorial 4"
+output: html_document
+---
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this exam.”
+\
+Kasey Wood
+\
+\
+Introduction: In this tutorial you should be able to understand how to create a shiny app, including how to make the shiny app reactive. The goal of this tutorial is to help you understand the different parts of the shiny app and how they all work together. In this tutorial we will be looking at an alcohol data set. This data set compares the number of alcohol servings between different countries. The data set groups the types of alcohol as well. We will be creating an app that can choose countries to compare between a chosen variable.
+\
+\
+Read in the data set
+\
+```{r}
+library(tidyverse)
+alcohol <- read_csv("data/alcohol.csv")
+```
+\
+To easily get the shiny package loaded you can type out "shinyapp" and a snippet will pop up that looks like the snippet below. These are the main parts of your shiny app that you will be editing.
+\
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  
+)
+
+server <- function(input, output, session) {
+  
+}
+
+shinyApp(ui, server)
+```
+\
+\
+The first step to creating a shiny app is playing with the data outside of the app itself. It is important to see the type of graphs you want the app to be able to make, so we know where to put inputs into the shiny app.
+\
+\
+```{r}
+alcoholnew <- alcohol %>% filter(country == "Afghanistan" | country == "Albania")
+ggplot(data = alcoholnew, aes(x = country, y = wine_servings)) +
+  geom_col()
+```
+\
+\
+The goal of our shiny app is to be able to choose to countries and compare them depending on the variable that the user will also be able to select. Since we know that our user is going to have to choose two countries and a variable, we can create the input functions for these.
+\
+\
+The input functions go in the "ui" in the given shiny app snippet.
+\
+\
+There are many different input functions we can choose from depending on the data we are selecting from.
+\
+\
+Since there are many different options for the variable country, we will use a dropdown window to select the country. This is called "selectize input".
+\
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput("country1", 
+                 # this is the input id, it will be used in the server when we want to call our input
+                 # the name of this input is very important and must be kept track of
+                 label = "Choose a Country",
+                 # this labels the button where the user will select the country
+                 choices = alcohol$country
+                 # give the user the appropriate choices. In this instance it is all of the countries in the alcohol data set
+                 )
+)
+```
+\
+\
+We want to be able to choose another country, however this will need a different input and label because it is a different part of the plot we are making. 
+\
+\
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput("country1", 
+                 # this is the input id, it will be used in the server when we want to call our input
+                 # the name of this input is very important and must be kept track of
+                 label = "Choose a Country",
+                 # this labels the button where the user will select the country
+                 choices = alcohol$country
+                 # give the user the appropriate choices. In this instance it is all of the countries in the alcohol data set
+                 ),
+  selectizeInput("country2",
+                 # make sure to choose different labels for each input (or the computer will get confused)
+                 label = "Choose a Country",
+                 choices = alcohol$country))
+
+```
+\
+\
+Now we want to be able to input the given variable we want to see compared in the app
+\
+\
+To do this we will use a different type of input called radio buttons, which is for inputs with less options for the user.
+\
+\
+We use the same type of code for every input. Every input needs and inputID, label, and the given choices for the user.
+\
+\
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  selectizeInput("country1", 
+                 # this is the input id, it will be used in the server when we want to call our input
+                 # the name of this input is very important and must be kept track of
+                 label = "Choose a Country",
+                 # this labels the button where the user will select the country
+                 choices = alcohol$country
+                 # give the user the appropriate choices. In this instance it is all of the countries in the alcohol data set
+                 ),
+  selectizeInput("country2",
+                 # make sure to choose different labels for each input (or the computer will get confused)
+                 label = "Choose a Country",
+                 choices = alcohol$country),
+    radioButtons("varchoice", 
+               label = "Choose a Statistic",
+               choices = c("beer_servings", "spirit_servings", "wine_servings"))
+)
+```
+\
+\
+Now that we have all of our inputs set, we want to put these inputs into the reactive part of the server before we output anything. Let's take a look at the server function. \
+\
+The server function creates the outputs and gives them to the ui to print out. This is where we can create reactive plots and tables depending on what the user selects.
+\
+\
+When we messed with our data earlier we already kind of made this reactive graph, we just need to change a few of the variable names to our inputs. This makes it so when the user chooses a new country or variable, the graph in the app will change depending.
+\
+\
+```{r}
+server <- function(input, output, session) {
+  alcohol_update <- reactive({
+    # we must use reactive here because there are inputs within the code below, so the graph will be changing depending on what the user selects
+    alcohol %>% filter(country == input$country1 |
+                         # this is where the input label comes in. we want to make sure we use the correct label. This will give the user all the options for the country 1 input and whatever they choose will go into this spot and edit the graphic.
+                         country == input$country2)
+  })
+}
+
+shinyApp(ui, server)
+```
+\
+\
+Now we have told the app to create a new data set with only the two countries that the user selects in the input. The last part we need now is to graph this with the correct variable.
+\
+\
+In order to change the variable being compared depending on the user we must use another reactive action on the graph, so that the entire graph will change when the user chooses the new variable. This will be done in the server as well.
+\
+\
+```{r}
+server <- function(input, output, session) {
+  alcohol_update <- reactive({
+    alcohol %>% filter(country == input$country1 |
+                         country == input$country2)
+    
+  })
+  alcohol_plot <- reactive({
+    # here we are doing the same thing as will the data set, however we are using the reactive active on a ggplot.
+    ggplot(data = alcohol_update(), aes(x = country, y = .data[[input$varchoice]])) +
+    ## you must use this .data[[input$varchoice]] in order to use the data here so it is not a string.
+      ## another thing to note here is the data set we are using is from a reactive action so you must put parentheses after it (ex. alcohol_update())
+      geom_col()
+  })
+}
+```
+\
+\
+All of this code sets us up to create our graph in our app the only thing we are missing is the graph itself. The app has all of the information for creating the graph, but it needs to be told to make the graph. In order to do this we will be using both the ui and the server function. 
+\
+\
+The following R chunk contains the final product of the shiny app we have created. The commented lines are the new lines that have not been discussed.
+\
+\
+```{r}
+library(shiny)
+
+ui <- fluidPage(
+  sidebarLayout(sidebarPanel(selectizeInput("country1",
+                 label = "Choose a Country",
+                 choices = alcohol$country
+  ),
+  selectizeInput("country2",
+                 label = "Choose a Country",
+                 choices = alcohol$country),
+  radioButtons("varchoice", 
+               label = "Choose a Statistic",
+               choices = c("beer_servings", "spirit_servings", "wine_servings"))),
+  mainPanel(plotOutput(outputId = "plot"))))
+# Here we want to create an output, so we do this by putting it in the main Panel. Putting the output in the main panel shows the graph as the main part of the app. This output id will be used in the same was as the input id's, however it will be used outside of the function.
+
+
+server <- function(input, output, session) {
+  alcohol_update <- reactive({
+    alcohol %>% filter(country == input$country1 |
+                         country == input$country2)
+    
+  })
+  alcohol_plot <- reactive({
+    ggplot(data = alcohol_update(), aes(x = country, y = .data[[input$varchoice]])) +
+      geom_col()
+  })
+  output$plot <- renderPlot({
+    alcohol_plot()
+    # Here is how the output id is used. The output id was plot, so as long as it matches this plot should work. Note again that the plot we used was reactive so we had to close the label with parentheses (ex. alcohol_plot())
+  })
+}
+
+
+shinyApp(ui, server)
+# This line of code will run the app.
+```
+\
+\
+Now you have your app and you can play around with it to see what it can do.
+\
+
+

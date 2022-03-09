@@ -1,0 +1,67 @@
+---
+title: "Mini-Tutorial 2"
+output: html_document
+---
+
+Mini-Tutorial 2: Mapping
+\
+\
+Introduction: In this tutorial we will discuss how to map in R. This will go over mapping with the maps package that is already located in R. The main goal will to be able to create your own map in R using the maps package. Then also understand how to show statistics on the maps. The data set used in this tutorial is discussed more in detail later in the tutorial, however it is a data set that contains information that will help R print out a map of New Zealand. The variables present in this data set are longitude, latitude, group, order, region, and subregion. These variables all represent points that fill up a shape that makes the map of New Zealand. These variables are discussed in detail later in this tutorial when talking about the ggplot function.
+\
+In order to map common areas in the world, there are many maps already drawn in the maps package in R. We can call this package the same as tidyverse using library.
+\
+```{r}
+library(tidyverse)
+library(maps)
+```
+\
+In order to get this map we must use the following code. There are many different maps we can get from this map_data function. One of these maps shows the map of New Zealand. We would use a map like this if wanted to compare something like population rate in each region of New Zealand.
+```{r}
+nz_df <- ggplot2::map_data("nz")
+```
+\
+Now if we actually want to create the map we have to use the different variables we have in our new data frame we just got from the maps package. We can look at the first few lines of our data frame to see what types of variables we are given in the data set.
+\
+```{r}
+head(nz_df)
+```
+\
+Here we can see that the data set includes the variables of longitude, latitude, group, order, region, and subregion. We can also see that there are many points for the region North.Island and if we were to look through the rest of the data set we would find even more regions that have many different points. This is because we need to plot every single point of shape and we do this by using the longitude and latitude for maps. That way we can just plot all the longitudes and latitudes that make up each country, continent, etc.. So, let's try to plot New Zealand by using the longitude and latitude.
+\
+```{r}
+ggplot(data = nz_df, aes(x = long, y = lat, group = group)) +
+  # Here you can see that we used longitude for x because it is known as the width of the Earth and latitude for y because it is more know as the height of the earth.
+  # Take note of how group is set equal to group here, which is very important because the groups were already specified in the maps package.
+  geom_polygon() 
+# We have a new geom here that can draw shapes on a graph.
+```
+\
+There are a few things wrong with this map however. When we look at it, it doesn't exactly look like a map because there is still graph axes there, so let's fix that. There are a few things we want to add to our code.
+\
+```{r}
+ggplot(data = nz_df, aes(x = long, y = lat, group = group)) +
+  geom_polygon(fill = "white", colour = "black") +
+  # If we want our polygon to be empty then we can simply fill it with white and outline it.
+  coord_map(projection = "albers", lat0 = -40, lat1 = -38) +
+  # We want our projection set to albers for these maps. The lat0 and lat1 depend on the map you are using. 
+  theme_void()
+# theme_void() takes the axes and other normal parts of plots off of the map, so that all is shown is the shape of the given place.
+```
+\
+If we wanted to compare the population rate of each region the next steps would be to get a data set that has the data of the population rate for each region. (I could not find a data set for this so the following code will show what you would do in this situation~with a fake data set)
+\
+```{r}
+#nz_stats # this will represent your data set with the statistics for new zealand
+#nz_full <- left_join(nz_df, nz_stats, by = c("region" = "Region"))
+# this is simply joining the two data sets (make sure to use the correct key term from each data set)
+```
+\
+Now we have a data set that contains both the mapping data, so the longitude and latitude, and statistics for the country of New Zealand. In order to map these different statistics you would put an aes(fill = ) function in, however you must make sure to use the correct coloring system.
+\
+We can use scale_fill_() and add that at the end of our code for our graph to color using a good color scale. We would want to use scale_fill_fermenter() to bin continuous variables. We would want to use scale_fill_discrete() for discrete colors. And we would want scale_fill_distiller() for continuous variables.
+\
+\
+Now, you should understand how to create your own map from the maps package in R.
+\
+
+

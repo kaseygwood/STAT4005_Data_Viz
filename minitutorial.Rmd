@@ -1,0 +1,261 @@
+---
+title: "Mini-Tutorial 1"
+output: html_document
+---
+
+“All work presented is my own. I have not communicated with or worked with anyone else on this exam.”
+\
+Kasey Wood
+\
+\
+Mini-Tutorial 1: Data Visualization Concepts (20 points)
+\
+Topics to Cover:
+\
+Grammar of Graphics.
+\
+One topic from the Data Visualization Reading of your choice.
+\
+A second topic from the Data Visualization Reading of your choice.
+\
+Introduction: In this tutorial we will discuss the different parameters in the grammar of graphics in detail and by the end you should understand each of the main seven parameters we will be using and how we call those parameters in R. We will also discuss Data visualization topics. One of the data visualization topics that will be discussed is color scales, so by the end you should understand which colour scale to pick for your graphic. The other topic is the perception of data, so by the end you should understand how to make your data percievable to your intended audience. The maine data set used in this tutorial is the pokemon_full data set. This contains variables including the Name, Type, HP, Attack, Defense, Speed, SpAtk, SpDef, Generation, Legendary, height, and weight. Each of these samples represents a particular pokemon and it contains the type of pokemon it is and all of the statistics that are listed above for each pokemon.
+
+\
+\
+```{r}
+library(tidyverse)
+pokemon_full <- read_csv("data/pokemon_full.csv")
+pokemon_attack <- pokemon_full %>% group_by(Type) %>% summarise(meanAttack = mean(Attack))
+```
+\
+Grammar of Graphics: Grammar of graphics describe the different parts of the graphics that we make.
+\
+There are seven parameters in the grammar of graphics that we use:
+\
+<DATA>
+\
+<MAPPING>
+\
+<GEOM_FUNCTION>
+\
+<STAT>
+\
+<POSITION>
+\
+<FACET_FUNCTION>
+\
+<COORDINATE_FUNCTION>
+\
+These are the different parameters we put into our plots to create them. These seven parameters can be found in the ggplot2 package, so let's look at the first parameter in this package.
+\
+When we call ggplot in R like this: "ggplot()", we can see a window pop up that looks like this: "ggplot(data = NULL, mapping = aes(), ..., environment = parent.frame())
+\
+\
+The first parameter requested is the data. So, this is where we specify the data set that is used in the plot. Since, our data set in this example is "pokemon_full" that is what we would put after the equal sign (as shown below).
+\
+```{r}
+ggplot(data = pokemon_full)
+```
+\
+\
+The second parameter requested in the pop-up window is mappings. The mappings are what are in the aesthetics function. These map the variables to the plot you are creating. This is where we can assign our x and y variables along with a few other important distinctions for the plot.
+\
+The other distinctions we make in the aesthetic function are: colour, size, shape, group, and fill. We will look at these more after discussing geom_functions.
+\
+\
+The geom_function parameter is what we add to the ggplot function in order to represent the type of graphic we are creating. There are many different geom_functions that work for different types of data. While we discuss these geom_functions we will discuss mappings more in depth as well. 
+\
+We have many different types of data that we may want to look into. We may look into categorical data, quantitative, or a mixture of both. We will discuss which geom functions we should use for all of these types
+\
+\
+If we are trying to make a plot that contains a single quantitative variable then we want to make either a histogram (geom_histogram()) or a frequency plot (geom_freqpoly()). Let's look at an example of this with our pokemon data set we are using.
+\
+Let's make a plot that looks at the attack variable. Since, the attack variable is quantitative we will use a frequency plot.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Attack)) +
+  # we can see our first example of a mapping aesthetic here. We want the graph to look at the attack variable so we assign it to our x (this variable will then go on the x-axis).
+  geom_freqpoly()
+# notice how we use a plus sign after the ggplot() function to attach it to the geom_function()
+```
+\
+\
+Now lets make a plot for a single categorical variable. This geom function will be either geom_bar() or geom_col().
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Type)) +
+  geom_bar()
+```
+\
+As you can see on the plot above the x-axis is very difficult to read. We will talk about ways we can fix this when we discuss coordinate_functions later in this tutorial.
+\
+\
+If we would like to make a plot for two quantitative variables there are three different geom_functions that we can use. We can use geom_point(), geom_line(), and geom_smooth(). 
+\
+Let's look at how to make one of these plots.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Attack, y = Defense)) +
+  # Notice here how I added a new aesthetic. Since there are two variables now, we need a y axis variable. Here we are comparing the Attack points of pokemon to their Defense points.
+  geom_point() +
+  geom_smooth()
+# geom_smooth adds a regression line to plot
+```
+\
+\
+In order to make a plot for a categorical and a quantitative variable, we will use the functions geom_boxplot() and geom_violin(). These functions will be placed in the same place as the other geom functions.
+\
+\
+In order to make a plot for two categorical variables, we will use the functions geom_bar(), geom_tile(), and geom_bin_2d(). These will be placed the same as the other geom functions.
+\
+\
+Now that we understand the geom_functions we are using to make certain plots let's look back at the rest of the possible aesthetics we can use in mappings on a few of these plots.
+\
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Attack, y = Defense, colour = Type)) +
+  geom_point() +
+  geom_smooth()
+# Here we can see colour as an example in an aesthetic function. When the call is in the function it will colour it by whatever variable is called. If colour is put in the ggplot aes it will be a global aesthetic and will be sent to every part of the plot.
+```
+\
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Attack, y = Defense)) +
+  geom_point(aes(colour = Type)) +
+  geom_smooth()
+# Here we can see we put the aesthetic for colour in just geom_point so that only the points change colour based on type and the colour does not get called for the smooth lines.
+```
+\
+\
+We can use the other mappings in the same way inside of our aesthetic.
+\
+\
+\
+Another common parameter that we use is facet. Facet graphs are used to make many different plots of the same data. It groups the data by a particular variable and then a plot is created for each of those groupings.
+\
+For instance we can make the same type of graph as above, but instead of colouring by type we can facet by species. In order to call the facet function you use "facet_wrap(~ [variable you're wrapping by])". This example is shown below.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Attack, y = Defense)) +
+  geom_point() +
+  facet_wrap(~ Type)
+# Here you can see that facet_wrap is added after the geom call and includes the variable it is wrapping by inside of it.
+```
+\
+\
+\
+Another parameter we use in the grammar of graphics is stat. Each geom has a different default "stat". We usually will not change the stat, however an example of this can be shown below.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Type)) +
+  geom_bar(stat = "count")
+# We don't need to call stat = "count" because it is the default for geom_bar. It stands for the statistic we are finding, so we can see in our barplot below that our y axis happens to be count. So, count is the statistic we are finding with barplots. Don't forget that each geom has a different default stat and these can be found online if needed.
+```
+\
+\
+\
+Another parameter that we use a little bit more than stat, but not as much as the others is position. The best way to use this is when we want to fill a barplot by a variable, but we don't want to plot to be stacked.
+\
+The default position for bar plots is for the plot to be stacked, as represented below (notice how no position is called in this graph).
+```{r}
+pokemon_small <- pokemon_full %>% filter(Type == "Bug" | Type == "Dark" | Type == "Dragon" | Type == "Electric")
+ggplot(data = pokemon_small, aes(x = Type, fill = Legendary)) +
+  geom_bar(position = "stack") +
+  scale_fill_viridis_d()
+```
+\
+However, if we want a side by side barplot we can put dodge in instead of stack for the position.
+\
+```{r}
+ggplot(data = pokemon_small, aes(x = Type, fill = Legendary)) +
+  geom_bar(position = "dodge") +
+  scale_fill_viridis_d()
+```
+\
+With this graphic we can compare between both the legendary and not legendary pokemons in each type.
+\
+\
+\
+The final parameter we will talk about pertaining to the grammar of graphics is the coordinate function. The most important and common coordinate function that we will use is coord_flip(). If you can recall earlier in the tutorial we had an issue where our graphs x-axis was very difficult to read. I'll put that graph right below so you can take a look at it again.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Type)) +
+  geom_bar()
+```
+\
+In order to fix this we can use the function coord_flip(), which flips the x and y axis, so the Type will be much easier to see. As shown below.
+\
+```{r}
+ggplot(data = pokemon_full, aes(x = Type)) +
+  geom_bar() +
+  coord_flip()
+# similar to the facet wrap this function will be added below the geom function
+```
+\
+Here we can see that the Type of pokemon is much easier to read now that we used the coordinate flip function.
+\
+\
+\
+Data Visualization:
+\
+There are many different things to take into consideration when we are talking about good data visualizations. We want our data visualizations to be truthful and readable by the target audience. We won't discuss every way that you should do this, but we will go over two very important topics in data visualization.
+\
+\
+The first topic of data visualization that we will discuss is color. Color can be extremely important in graphics and it can tell a lot of stories on its own. There are two different parts to the color of an object. A colour's hue is the actual color that the object is, which is actually defined in terms of the wavelength of the light reflecting from the object's surface because the color reflected the most is the color actually shown. While a colour's intensity is the darkness of the color, so you can see different color intensities on graphs that show scale colors. 
+\
+\
+Choosing a color palette for your visualization can be very important because of the way people see colors. The way we see brightness mostly depends on relative brightness with the surrounding colours. So, we want to make sure we use the correct colour scale for our visualizations.
+\
+\
+There are three main different types of colour scales that we will discuss. 
+\
+\
+The first colour scale we will discuss is the sequential colour scale. We want to use a sequential colour scale when we are looking to color things from low to high, or high to low. So, this colour scale will get darker or lighter as the value changes. This is for quantitative variables mainly. An example where you would want to use a sequential color scale is if we are trying to show grades in a classroom (so as the grades go up the color scale gets darker).
+\
+```{r}
+#ggplot(data = df, aes(x = x, y = y, fill = fill)) +
+  #geom_col() +
+  #scale_fill_distiller()
+# This is a mock r code of the type of colour scale we would use. Distiller is for continuous variables, so it will work for a sequential colour scale.
+```
+\
+\
+The second colour scale we will discuss is the diverging colour scale. This is similar to the sequential colour scale, however it's for if we want a neutral midpoint in our scale. So, for example as the count gets bigger it gets darker, and as the count gets smaller the colour also gets darker. But, as the count gets closer to the midpoint it gets lighter. This is for quantitative variables mainly. An example of a diverging colour scale is when you are looking at your average running time (in mph) and want to know how much you vary from that throughout your run. So, it will be darker when running the slowest and fastest because it is the farthest away from your average running time. We can use scale_fill_distiller() for this scale as well.
+\
+\
+The last colour scale we will discuss is the unordered colour scale. This colour scale is more for categorical variables. For, this we want the colors to be easy to tell apart from eachother, but we don't need to colours to be similar. An example of when we used this earlier was in the point plot when we coloured the points by Type.
+\
+```{r}
+ggplot(data = pokemon_small, aes(x = weight, y = Speed)) +
+  geom_point(aes(colour = Type)) +
+  scale_fill_discrete()
+# We can use scale_fill_discrete() to graph unordered colour scale variables
+```
+\
+\
+Another very important part of data visualization is the perception of the data. This is how we read the graph depending on what it looks like. It is important for the user to be able to understand what your graphic is trying to tell them. If the graphic has too many things on it, or things that are not necessary then this may be difficult. It also can be very difficult for the user to understand the graphic if the data is just not readable on the graph. We touched on this slightly when talking about the position parameter, but let's look back at those graphs. 
+\
+```{r}
+ggplot(data = pokemon_small, aes(x = Type, fill = Legendary)) +
+  geom_bar(position = "stack") +
+  scale_fill_viridis_d()
+```
+\
+When barcharts are stacked like this it can be easy to see the overall trend. For example in this graph we can compare the count of each type in this data set. We can also compare the pokemons that are legendary to eachother, but it is very difficult to compare the pokemons that are not legendary to eachother on this graphic. This is because it is extremely important to have a common starting point for all the data. That way the data is comparable. So, this would be an example of a plot that does not show good perception of the data, because we can't read an important part of the information we need to answer our question.
+\
+\
+In order to fix this issue we can just make this a side by side barchart as we did above.
+\
+```{r}
+ggplot(data = pokemon_small, aes(x = Type, fill = Legendary)) +
+  geom_bar(position = "dodge") +
+  scale_fill_viridis_d()
+```
+\
+\
+As you can see this barchart is much more readable because we compare between the pokemons that aren't legendary more now. We can read every count as well, without have to do any subtraction.
+\
+\
+So, you now should have a better understanding of the grammar of graphics and a few data visualization concepts.
+\

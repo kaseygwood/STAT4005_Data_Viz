@@ -1,0 +1,60 @@
+---
+title: "Mini-Tutorial 3"
+output: html_document
+---
+
+Mini-Tutorial 3: Expressing Uncertainty
+\
+\
+Introduction: This tutorial will discuss why it is important to express variability in your graphics. The goal of this tutorial will be to understand what we want to show in our graphics and to understand how we want to show our knowledge from the data. We also want to understand how to show that there is uncertainty in many of the graphics that we make. The data set that will be used in this tutorial has data on athletes in different spots. The data set only contains 100 samples and the variables are Name, Rank, Sport, endorsements, totalpay, salary, age, and Gender. The two main variables we will look at are Sport and salary. The sport represents the sport that the player played, and salary represents their salary.
+\
+\
+There are many different ways that we can express variability in our graphics. The most important thing to think of when we think of expressing variability is to think of whether what are plot shows is actually the information we want our user to see. We also must make sure that it shows the data correctly.  
+\
+For example if we want to look at the mean salary of different sports from this athletes data set we may choose to use a bar plot.
+\
+```{r}
+library(tidyverse)
+athletesdata <- read_csv("data/athletesdata.csv")
+athletes_new <- athletesdata %>% 
+  group_by(Sport) %>% 
+  summarise(meansalary = mean(salary))
+
+ggplot(data = athletes_new, aes(x = Sport, y = meansalary)) +
+  geom_col()
+```
+\
+This graphic does not express mean salary well because it shows mean salary as if it was a count. So, since mean salary really represents a point for each sport, we may want to use a point plot instead of a barplot.
+\
+```{r}
+ggplot(data = athletes_new, aes(x = Sport, y = meansalary)) +
+  geom_point()
+```
+\
+On this plot we can see the averages as just as single point, so the user can better understand the data the points represent. This plot is now showing the correct type of information, however it is not showing all of the variability it could be. This graph gives a point for the average mean salary of each sport in the data set. We can express more variability in this data set by adding standard error bars. In order to do this, we first calculate the standard error for the mean as shown in the code below.
+\
+```{r}
+athletes_df <- athletesdata %>% 
+  group_by(Sport) %>% 
+  summarise(meansalary = mean(salary),
+            se = (sd(salary))/sqrt(100),
+            l_se = meansalary - se,
+            u_se = meansalary + se)
+```
+\
+Then we want to plot this again with the standard errorbars. There is a geom for this as well.
+\
+```{r}
+ggplot(data = athletes_df, aes(x = Sport, y = meansalary)) +
+  geom_point() +
+  coord_flip() +
+  geom_errorbar(aes(ymin = l_se, ymax = u_se))
+# geom_errorbar will draw error bars on your graphic so you can show more uncertainty in your graphs.
+```
+\
+\
+After looking at the graph with error bars we can see more uncertainty in some points on the graph. If we hadn't drawn the error bars we would not have know that the mean salary for boxing can actually deviate a great amount and we really are not certain of that point. 
+\
+\
+After this tutorial, you should have a better understanding of how to show data variability and uncertainty in your plots.
+\
